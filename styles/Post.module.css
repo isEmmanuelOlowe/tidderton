@@ -1,0 +1,90 @@
+.container {
+    margin-top: 50px;
+}
+
+.individual {
+    margin-top: 50px;
+}
+.post {
+    margin-top: ;
+    border-radius: 5px;
+    background-color: #2c2c54;
+}
+
+.post h3, .indicators h3 {
+    font-size: 0.70rem;
+    color: #34ace0;
+}
+
+.postText {
+
+}
+
+.indicators{
+    padding: 10px;
+    margin-top: 30px;
+    border-radius: 5px;
+    background-color: #2c2c54;
+}
+
+.indicator:hover {
+    background-color: #cc8e35;
+    color: black;
+}
+.votes {
+    border-radius: 5px 0px 0px 5px;
+    font-size: 0.75rem;
+    font-weight: bold;
+    color: white;
+    background-color: #227093;
+}
+
+.votes div div {
+    padding-bottom: 25px;
+}
+.postContent {
+    padding: 10px;
+}
+
+.addComment {
+    border-radius: 5px;;
+    background-color: #2c2c54;
+    margin-top: 20px;
+    padding: 10px;
+}
+
+#commentBox {
+    color: white;
+    background-color: #2c2c54;
+    border: none;
+}
+
+#commentBox:focus {
+    box-shadow:0 0 0 3px #474787;
+}
+#commentButton {
+    padding: 10px;
+    background-color: #227093;
+    border: none;
+    color: white;
+}
+
+
+#commentButton:focus {
+    box-shadow:0 0 0 3px #474787;
+    background-color: #cc8e35;
+}
+
+.sub {
+    font-size: 1.1rem;
+    background-color: #227093;
+}
+.sub a {
+    color: #ffb142;
+}
+
+@media only screen and (max-width: 991px) {
+    .info {
+        margin-top: 50px;
+    }
+}
