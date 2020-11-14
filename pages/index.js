@@ -41,7 +41,7 @@ export default function Home() {
               <Link href="/t/Tidder Forever"><a className={styles.sub}>t/Tidder Forever</a></Link>
               <br/>
               <h6>Your Subs</h6>
-              {sub => (<hr style={{marginTop: "-1px", height:"1.6px", borderWidth:"0", color:"gray", backgroundColor:"gray"}}/>)}
+              <hr style={{marginTop: "-1px", height:"1.6px", borderWidth:"0", color:"gray", backgroundColor:"gray"}}/>
                 {
                   subs.map((sub) => (
                       <Link href={"/t/" + sub.sub}><a className={styles.sub}>t/{sub.sub}</a></Link>
