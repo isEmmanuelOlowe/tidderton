@@ -66,7 +66,7 @@ export default function Post() {
             }
         }
     }
-
+    console.log(postData.comments);
     return (
         <Layout notExists={notExists} heading={postData.title}>
             <div className={styles.sub + " container-fluid"}>
@@ -77,21 +77,21 @@ export default function Post() {
                     <div className="col-12 col-lg-8">
                         <div className={styles.post}>
                             <div className="row">
-                                <div className={styles.votes + " col-1"} >
+                                <div className={styles.votes + " col-12 col-md-1"} >
                                     <div className="row">
-                                        <div className="col-2 col-md-12">Up</div>
+                                        <div className="col-5 col-md-12">Up</div>
                                         <div className="col-4 col-md-12">{postData.count}</div>
-                                        <div className="col-2 col-md-12">Down</div>
+                                        <div className="col-3 col-md-12">Down</div>
                                     </div>
                                 </div>
-                                <div className="col-11">
+                                <div className="col-12 col-md-11">
                                     <div className={styles.postContent + " row"}>
                                         <h3 className="col-4">t/{postData.sub}</h3>
                                         <h3 className="col-4">Post By {postData.user && postData.user.server}@{postData.user && postData.user.username}</h3>
-                                        <h3 className="col-4">{postData.createdAt}</h3>  
-                                        <h1 className="col-12">{postData.title}</h1>
+                                        <h3 className="col-12 col-sm-4 ">{postData.createdAt}</h3>  
+                                        <h1 className="order-sm-12 col-12">{postData.title}</h1>
                                     </div>
-                                    <div className={styles.postTest}>
+                                    <div className={styles.postText}>
                                         <p>{postData.body}</p>
                                     </div>
                                 </div>
@@ -100,16 +100,14 @@ export default function Post() {
                         <form onSubmit={handleSubmit}>
                             <div className={styles.addComment + " form-group"}>
                                 <div className="form-row align-items-center">
-                                    <div className="col-10">
+                                    <div className="col-8 col-sm-10">
                                     <label className="sr-only" for="inlineFormInput">Comment</label>
                                     <input type="text" value={comment} onChange={handleComment} className={"form-control mb-2 " + commentError} id={styles.commentBox} placeholder="Comment"/>
                                     <div className="invalid-feedback">
                                         Can't have empty comment.
                                     </div>
                                     </div>
-                                    <div className="col-2">
-                                        <button type="submit" id={styles.commentButton} className="btn mb-2">Submit</button>
-                                    </div>
+                                        <button className="col-4 col-sm-2" type="submit" id={styles.commentButton} >Submit</button>
                                 </div>
                             </div>
                         </form>
@@ -117,7 +115,7 @@ export default function Post() {
                             <div className={styles.indicator}>Comments: {postData.noComments}</div>
                             {
                                 postData.comments && postData.comments.map((comment) =>
-                                    <Comment _id={comment.id} body={comment.body}server={comment.server} username={comment.username} createdAt={comment.createdAt}/>
+                                    <Comment _id={comment.id} body={comment.body} server={comment.server} username={comment.username} createdAt={comment.createdAt}/>
                                 )
                             }
                         </div>

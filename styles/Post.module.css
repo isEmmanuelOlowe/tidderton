@@ -17,7 +17,8 @@
 }
 
 .postText {
-
+    padding: 5px;
+    overflow-x: auto;
 }
 
 .indicators{
@@ -39,10 +40,27 @@
     background-color: #227093;
 }
 
-.votes div div {
-    padding-bottom: 25px;
+@media only screen and (max-width: 576px) {
+    .votes div div{
+        padding-top: 10px;
+        padding-bottom: 10px;
+    }
+    .votes div div{
+        align-items: center;
+    }
+    .votes {
+        border-radius: 0px;
+    }
 }
+
+@media only screen and (min-width: 576px) {
+    .votes div div {
+        padding-bottom: 25px;
+    }
+}
+
 .postContent {
+    overflow-x: auto;
     padding: 10px;
 }
 
@@ -63,7 +81,9 @@
     box-shadow:0 0 0 3px #474787;
 }
 #commentButton {
-    padding: 10px;
+    border-radius: 5px;
+    border: none;
+    height: 2.5rem;
     background-color: #227093;
     border: none;
     color: white;

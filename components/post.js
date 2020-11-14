@@ -28,7 +28,7 @@ export default function Post(props) {
     return (
         <div className={styles.post + " " +styles.individual}>
         <div className="row">
-            <div className={styles.votes + " col-1"} >
+            <div className={styles.votes + " col-12 col-sm-1"} >
                 <div className="row">
                     <div className="col-2 col-md-12">Up</div>
                     <div className="col-4 col-md-12">{postData.count}</div>
@@ -39,10 +39,10 @@ export default function Post(props) {
                 <div className={styles.postContent + " row"}>
                     <h3 className="col-4">t/{postData.sub}</h3>
                     <h3 className="col-4">Post By {postData.user && postData.user.server}@{postData.user && postData.user.username}</h3>
-                    <h3 className="col-4">{postData.createdAt}</h3>
+                    <h3 className="col-sm-4 col-12">{postData.createdAt}</h3>
                     <Link href={'/t/' + postData.sub + '/' + postData._id}><a><h1 className="col-12">{postData.title}</h1></a></Link> 
                 </div>
-                <div className={styles.postTest}>
+                <div className={styles.postText}>
                     <p>{postData.body}</p>
                 </div>
             </div>

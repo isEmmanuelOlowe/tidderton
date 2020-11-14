@@ -1,5 +1,5 @@
 module.exports = {
     env: {
-      BACKEND_HOST: 'http://localhost:5000',
+      BACKEND_HOST: 'https://tidderton-backend.herokuapp.com',
     },
   }
