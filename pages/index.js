@@ -40,13 +40,13 @@ export default function Home() {
               <Link href="/t/general"><a className={styles.sub}>t/General</a></Link>
               <Link href="/t/Tidder Forever"><a className={styles.sub}>t/Tidder Forever</a></Link>
               <br/>
-              <h6>Your Subs</h6>
-              <hr style={{marginTop: "-1px", height:"1.6px", borderWidth:"0", color:"gray", backgroundColor:"gray"}}/>
-                {
-                  subs.map((sub) => (
-                      <Link href={"/t/" + sub.sub}><a className={styles.sub}>t/{sub.sub}</a></Link>
-                  ))
-                }
+              {subs => (<h6>Your Subs</h6>)}
+              {subs => (<hr style={{marginTop: "-1px", height:"1.6px", borderWidth:"0", color:"gray", backgroundColor:"gray"}}/>)}
+              {
+                subs.map((sub) => (
+                    <Link href={"/t/" + sub.sub}><a className={styles.sub}>t/{sub.sub}</a></Link>
+                ))
+              }
             </div>
           </div>
         </div>

@@ -34,8 +34,8 @@ useEffect(() => {
     <Layout notExists={notExists} heading={username}>
       <div className="container">
         <div className="row align-items-center" style={{backgroundColor: "#2c2c54", padding: "20px", marginTop: "50px", borderRadius: "5px"}}>
-          <img className="d-inline-block align-center col-2" style={{width:"10vw"}} src="/user.png/"/>
-          <h1 style={{fontSize: "2rem"}} className="offset-1">tidder@{username}</h1>
+          <img className="d-inline-block align-top col-2" style={{width:"10vh"}} src="/user.png/"/>
+          <h1 className="offset-1">tidder@{username}</h1>
         </div>
         {
                 posts.map((postID) => (

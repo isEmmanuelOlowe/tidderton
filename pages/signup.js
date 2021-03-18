@@ -21,10 +21,13 @@ export default class Login extends React.Component {
     buttonDisable: "",
   }
 
+
   userNameClean = () => {
     this.setState({usernameError: ""});
     this.setState({inValidUsername: ""});
-    this.setState({buttonDisable: ""})
+    if (this.state.emailError === "" && this.state.password1Error === "" && this.state.password2Error === "") {
+      this.setState({buttonDisable: ""});
+    }
   }
   
   userNameError = (message) => {
@@ -62,7 +65,9 @@ export default class Login extends React.Component {
   userEmailClean = () => {
     this.setState({inValidEmail: ""});
     this.setState({emailError: ""});
-    this.setState({buttonDisable: ""});
+    if (this.state.usernameError === "" && this.state.password1Error === "" && this.state.paassword2Error === "") {
+      this.setState({buttonDisable: ""});
+    }
   }
 
   userEmailError = (message) => {
@@ -108,28 +113,34 @@ export default class Login extends React.Component {
       this.setState({inValidPassword1: ""})
       this.setState({password1Error: ""});
       this.setState({buttonDisable: ""})
-
+      this.passwordEqualCheck(this.state.password2)
     }
     //Perform some validation upon entered values
   }
+  passwordEqualCheck = (password2) => {
+    //Perform some validation upon entered values
+    if (password2 !== this.state.password1) {
+      this.setState({ inValidPassword1: "is-invalid" })
+      this.setState({ inValidPassword2: "is-invalid" })
+      this.setState({ password2Error: "Passwords do not match" });
+      this.setState({ buttonDisable: "disabled" })
 
+    }
+    else {
+      if (this.state.password1Error === "") {
+        this.setState({ inValidPassword1: "" });
+      }
+      this.setState({ inValidPassword2: "" });
+      this.setState({ password2Error: "" });
+      if (this.password1Error === "" && this.state.userNameError === "" && this.state.emailError === "") {
+        this.setState({ buttonDisable: "" });
+      }
+    }
+  }
   //Handles Form inpurt for the Password
   handlePassword2Change = (e) => {
     this.setState({password2: e.target.value});
-    //Perform some validation upon entered values
-    if (e.target.value !== this.state.password1) {
-      this.setState({inValidPassword1: "is-invalid"})
-      this.setState({inValidPassword2: "is-invalid"})
-      this.setState({password2Error: "Passwords do not match"});
-      this.setState({buttonDisable: "disabled"})
-      
-    }
-    else {
-      this.setState({inValidPassword1: ""});
-      this.setState({inValidPassword2: ""});
-      this.setState({password2Error: ""});
-      this.setState({buttonDisable: ""});
-    }
+    this.passwordEqualCheck(e.target.value);
   }
 
   //The submit initialises a pull request

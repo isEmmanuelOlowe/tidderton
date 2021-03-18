@@ -38,6 +38,8 @@ export default function Sub() {
                 <div className = "row">
                     <img src="/logo.png"/>
                     <h1 className="md-4">t/{subData.title}</h1>
+
+                    <button type="sm-6 float-right button" class="btn btn-primary">Joined</button>
                 </div>
             </div>
             <div className={styles.posts + " container"}>

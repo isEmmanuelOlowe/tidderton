@@ -37,7 +37,7 @@ export default class Login extends React.Component {
     //axios makes a pull request
     //insert the localhost:port as in quotation marks
     try {
-      let res = await axios.post(process.env.BACKEND_HOST + '/users/sign-in', {username: this.state.username, password: this.state.password});
+      let res = await axios.post(process.env.BACKEND_HOST + '/users/signIn', {username: this.state.username, password: this.state.password});
       if (res.data.username) {
         setCookie({}, 'token', res.data.token, {
           maxAge: 30 * 24 * 60 * 60,
