@@ -112,7 +112,6 @@ export default class Login extends React.Component {
     else {
       this.setState({inValidPassword1: ""})
       this.setState({password1Error: ""});
-      this.setState({buttonDisable: ""})
       this.passwordEqualCheck(this.state.password2)
     }
     //Perform some validation upon entered values
@@ -132,7 +131,7 @@ export default class Login extends React.Component {
       }
       this.setState({ inValidPassword2: "" });
       this.setState({ password2Error: "" });
-      if (this.password1Error === "" && this.state.userNameError === "" && this.state.emailError === "") {
+      if (this.state.password1Error === "" && this.state.usernameError === "" && this.state.emailError === "") {
         this.setState({ buttonDisable: "" });
       }
     }

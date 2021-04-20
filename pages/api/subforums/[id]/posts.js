@@ -1,4 +1,6 @@
 import axios from 'axios';
+const jwt = require('jsonwebtoken');
+import {getPostResponse, getSuitableHeaders} from '../../utils'
 
 export default async (req, res) => {
     // Extract ID from request URL.
@@ -6,60 +8,80 @@ export default async (req, res) => {
         query: { id },
     } = req;
 
+
     if (req.method === "GET") {
 
-        // Fetch subforum based on ID.
-        let sub = await axios.get(process.env.BACKEND_HOST + "/sub/" + id);
+        let verificationUrl = `${process.env.BACKEND_HOST}/signatures/verify`
+        let authResponse = await axios.get(verificationUrl, {headers: getSuitableHeaders(req)})
+        if (!authResponse.data.verified) {
+            res.status(authResponse.data.statusCode).json({message: authResponse.data.message})
 
-        // If sub was found then extract list of all of its posts.
-        if (sub.data.details) {
+        }
 
-            var postList = [];
+        else {
 
-            var post;
-            for (post of sub.data.details.Posts) {
+            // Fetch subforum based on ID.
+            let sub = await axios.get(process.env.BACKEND_HOST + "/sub/" + id);
+
+            if (sub.data.statusCode != 200) {
+                res.status(sub.data.statusCode).json({message: sub.data.message})
+            }
+
+            // If sub was found then extract list of all of its posts.
+            else if (sub.data.details) {
+
+                let postList = [];
+                let posts = sub.data.details.posts
+                for (let i = 0; i < posts.length; i++) {
                     // Construct respnse.
-                let cleanPost = {
-                    "id":           post._id,
-                    "postTitle":    post.title,
-                    "postContents": post.body,
-                    "userId":       "tidder@" + post.username, // TODO update to fetch user ID
-                    "subforumId":   post.sub,          // TODO update to fetch sub ID
-                    
+                    let postId = posts[i]
+                    try {
+                        let post = await axios.get(process.env.BACKEND_HOST + "/posts/" + postId)
+                        if (post.data.statusCode == 200) {
+                            let formattedPost = getPostResponse(post.data, postId)
+                            postList.push(formattedPost);
+                        }
+                    }
+                    catch {
+                        continue
+                    }
+                }
+
+                let responseData = {
+                    "_embedded": {
+                        "postList": postList
+                    },
                     "_links": {
                         "self": {
-                            "href": process.env.FRONTEND_HOST + "/api/posts/" + post._id
-                        },
-                        "subforum": {
-                            "href": process.env.FRONTEND_HOST + "/api/subforums/" + post.sub
-                        },
-                        "forum": {
-                            "href": process.env.FRONTEND_HOST + "/api/forums/" + 1
-                        },
-                        "user": {
-                            "href": "" // TODO add 
-                        },
-                        "comments": {
-                            "href": "" // TODO add comment routes
+                            "href": process.env.FRONTEND_HOST + "/api/subforums/" + id + "/posts"
                         }
                     }
                 }
-                postList.push(cleanPost);
-            }           
-            
-            // Return user with OK respnse code.
-            res.status(200).json({"_embedded": { "postList": postList}});
-        
+                // Return user with OK respnse code.
+                res.status(200).json(responseData);
+            }
         }
-        // Case where user not found.
-        else {
-            res.status(404).json({msg: "forum not found"});
+    }
+
+    // TO DO, need to use ID of sub effectively
+    // issues with user not already being in db
+    else if (req.method === "POST") {
+        let title = req.body.postTitle
+        let post = req.body.postContents
+        const user = {username:req.body.username, id:req.body.userId}
+        const addPostResponse = await axios.post(process.env.BACKEND_HOST + '/posts/addPost', {user, title, post, subID: id}, {headers: getSuitableHeaders(req)});
+
+        if (addPostResponse.data.statusCode != 200) {
+            res.status(addPostResponse.data.statusCode).json({message: addPostResponse.data.message})
         }
 
-        
-    }
-    else {
-        // Request is not GET, assume for now that no permissions other than GET for external.
-        res.status(403).json({msg: "no permission or error"});
+        else {
+            let postId = addPostResponse.data.postID
+            let postContents = addPostResponse.data
+            postContents = await axios.get(process.env.BACKEND_HOST + "/posts/" + postId)
+            postContents = postContents.data
+            let formattedPost = getPostResponse(postContents, postId)
+            res.status(200).json(formattedPost);
+        }
     }
 }

@@ -1,3 +1,6 @@
+import axios from "axios";
+import {getForumResponse, getSuitableHeaders} from '../../utils'
+
 // Request for individual forum by ID.
 export default async (req, res) => {
     // Extract ID from request URL.
@@ -5,40 +8,26 @@ export default async (req, res) => {
         query: { id },
     } = req;
 
-    if (req.method === "GET") {
-                
+    let verificationUrl = `${process.env.BACKEND_HOST}/signatures/verify`
+    let authResponse = await axios.get(verificationUrl, {headers: getSuitableHeaders(req)})
+    if (!authResponse.data.verified) {
+        res.status(authResponse.data.statusCode).json({message: authResponse.data.message})
+        
+    }
+    else if (req.method === "GET") {
+
         // If forum was found then construct JSON response conforming to protocol.
-        if (id == 1) {
+        if (id == process.env.TIDDERTON_ID) {
             // Construct respnse.
-            let forum = {
-                
-                "id":   1,
-                "forumName": "Tidderton",
-                "_links": {
-                    "self": {
-                        "href": process.env.FRONTEND_HOST + "/api/forums/" + id 
-                    }, 
-                    "forums": {
-                        "href": process.env.FRONTEND_HOST + "/api/forums" 
-                    },
-                    "subforums": {
-                        "href": process.env.FRONTEND_HOST + "/api/forums/" + id + "/subforums"
-                    }       
-                }   
-            }          
-            
+            let forum = getForumResponse()
+
             // Return forum with OK respnse code.
             res.status(200).json(forum);
-        
+
         }
         // Case where forum not found.
         else {
-            res.status(404).json({msg: "forum not found"});
+            res.status(404).json({message: "Forum Not Found"});
         }
-
-    }
-    else {
-        // Request is not GET, assume for now that no permissions other than GET for external.
-        res.status(403).json({msg: "no permission or error"});
     }
 }

@@ -37,7 +37,7 @@ useEffect(() => {
           <img className="d-inline-block align-top col-2" style={{width:"10vh"}} src="/user.png/"/>
           <h1 className="offset-1">tidder@{username}</h1>
         </div>
-        {
+          {
                 posts.map((postID) => (
                     <Post postID={postID.postID}/>
                 ))

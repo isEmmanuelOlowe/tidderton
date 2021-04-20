@@ -18,11 +18,34 @@ export default function Post() {
     const [comment, setComment] = useState("");
     const [commentError, setCommentError] = useState("");
     const [commentAdded, setCommentAdded] = useState({});
+    const [votes, setVotes] = useState(0);
+    const [upvote, setUpvote] = useState(styles.voteInactive);
+    const [downvote, setDownvote] = useState(styles.voteInactive);
+    const [logged, setLogged] = useState();
+
     const fetchPost = async () => {
+        
         try {
             let res = await axios.get(process.env.BACKEND_HOST + '/posts/' + post);
+            res.data = res.data.post
             res.data.noComments = res.data.comments.length
-            res.data.count = res.data.votes.upvotes.length - res.data.votes.downvotes.length;
+            setVotes(res.data.votes.upvotes.length - res.data.votes.downvotes.length);
+            // console.log(res.data)
+            let commentsData = []
+            for(let commentID in res.data.comments) {
+                let res2 = await axios.get(process.env.BACKEND_HOST + '/comments/' + res.data.comments[commentID]);
+                commentsData.push(res2.data);
+            }
+            const { username } = parseCookies();
+
+            if (res.data.votes.upvotes.some(user => user.server === "tidder" && user.username === username)) {
+                setUpvote(styles.voteActive);
+            }
+            else if (res.data.votes.downvotes.some(user => user.server === "tidder" && user.username === username)) {
+                setDownvote(styles.voteActive);
+            }
+
+            res.data.comments = commentsData;
             setPost(res.data)
             if (res.data.sub === sub) {
                 let res = await axios.get(process.env.BACKEND_HOST + '/sub', {params :{title: sub}});
@@ -33,12 +56,16 @@ export default function Post() {
                 throw err
             }
             setNotExists(false);
+            if (username) {
+                setLogged(true);
+            }
         }
         catch (err) {
+            console.log(err);
             setNotExists(true);
         }
     }
-    
+
     useEffect(() => {
         if (router.asPath !== router.route) {
             fetchPost();
@@ -46,6 +73,7 @@ export default function Post() {
     }, [router, commentAdded])
 
     const handleComment = (e) => {
+        setCommentError("");
         setComment(e.target.value);
     }
 
@@ -53,17 +81,60 @@ export default function Post() {
         e.preventDefault();
         if (comment === "") {
             setCommentError("is-invalid")
-            console.log("gere")
         }
         else {
             try {
                 const {token} = parseCookies();
-                let res = await axios.post(process.env.BACKEND_HOST + '/posts/addComment', {token, postID: postData._id, comment})
+                let res = await axios.post(process.env.BACKEND_HOST + '/posts/addComment', {token, postID: postData._id, comment});
                 setCommentAdded({})
+                setComment("");
             }
             catch (err) {
                 console.log(err)
             }
+        }
+    }
+
+    const addUpvote = async () => {
+        try {
+            const { token } = parseCookies();
+            let res = await axios.post(process.env.BACKEND_HOST + '/posts/upvote/', {token, id: postData._id});
+            console.log(res.data);
+            res.data = res.data.post;
+            res.data.count = res.data.votes.upvotes.length - res.data.votes.downvotes.length;
+            // console.log(res.data.count);
+
+            if(votes > res.data.count) {
+                setUpvote(styles.voteInactive);
+            }
+            else {
+                setUpvote(styles.voteActive);
+            }
+            setVotes(res.data.count);
+            setDownvote(styles.voteInactive);
+        }
+        catch (err) {
+            console.log(err);
+        }
+    }
+
+    const addDownvote = async () => {
+        try {
+            const { token } = parseCookies();
+            let res = await axios.post(process.env.BACKEND_HOST + '/posts/downvote/', { token, id: postData._id });
+            res.data = res.data.post;
+            res.data.count = res.data.votes.upvotes.length - res.data.votes.downvotes.length;
+            setVotes(res.data.count);
+            if (votes < res.data.count) {
+                setDownvote(styles.voteInactive);
+            }
+            else {
+                setDownvote(styles.voteActive);
+            }
+            setUpvote(styles.voteInactive);
+        }
+        catch (err) {
+            console.log(err);
         }
     }
 
@@ -79,16 +150,16 @@ export default function Post() {
                             <div className="row">
                                 <div className={styles.votes + " col-1"} >
                                     <div className="row">
-                                        <div className={"col-2 col-md-12 " + styles.vote}>Up</div>
-                                        <div className="col-4 col-md-12">{postData.count}</div>
-                                        <div className={"col-2 col-md-12 " + styles.vote}>Down</div>
+                                        <div onClick={addUpvote} className={"col-2 col-md-12 " + styles.vote + " " + upvote}>Up</div>
+                                        <div className="col-4 col-md-12">{votes}</div>
+                                        <div onClick={addDownvote} className={"col-2 col-md-12 " + styles.vote + " " +  downvote}>Down</div>
                                     </div>
                                 </div>
                                 <div className="col-11">
                                     <div className={styles.postContent + " row"}>
                                         <h3 className="col-4">t/{postData.sub}</h3>
                                         <h3 className="col-4">Post By {postData.user && postData.user.server}@{postData.user && postData.user.username}</h3>
-                                        <h3 className="col-4">{postData.createdAt}</h3>  
+                                        <h3 className="col-4">{postData.createdAt}</h3>
                                         <h1 className="col-12">{postData.title}</h1>
                                     </div>
                                     <div className={styles.postTest}>
@@ -97,12 +168,12 @@ export default function Post() {
                                 </div>
                             </div>
                         </div>
-                        <form onSubmit={handleSubmit}>
+                        {logged && <form onSubmit={handleSubmit}>
                             <div className={styles.addComment + " form-group"}>
                                 <div className="form-row align-items-center">
                                     <div className="col-10">
                                     <label className="sr-only" for="inlineFormInput">Comment</label>
-                                    <input type="text" value={comment} onChange={handleComment} className={"form-control mb-2 " + commentError} id={styles.commentBox} placeholder="Comment"/>
+                                    <textarea type="text" value={comment} onChange={handleComment} className={"form-control mb-2 " + commentError} id={styles.commentBox} placeholder="Comment"/>
                                     <div className="invalid-feedback">
                                         Can't have empty comment.
                                     </div>
@@ -112,12 +183,12 @@ export default function Post() {
                                     </div>
                                 </div>
                             </div>
-                        </form>
+                        </form>}
                         <div className={styles.indicators + " col-12"}>
                             <div className={styles.indicator}>Comments: {postData.noComments}</div>
                             {
-                                postData.comments && postData.comments.map((comment) =>
-                                    <Comment _id={comment.id} body={comment.body}server={comment.server} username={comment.username} createdAt={comment.createdAt}/>
+                                postData.comments && postData.comments.map((comment) => 
+                                    <Comment postID={postData._id} childComments={comment.children} parentCommentID={comment._id} key={comment._id} content={comment.commentContent}server={comment.server} username={comment.username} createdAt={comment.createdAt}/>
                                 )
                             }
                         </div>
@@ -133,7 +204,7 @@ export default function Post() {
                                 </div>
                                 <div className=" col-4 col-lg-12">
                                     <h3>Tidder Age</h3>
-                                    <p>234 days</p>
+                                    <p>{subData.createdAt}</p>
                                 </div>
                                 <div className="col-4 col-lg-12">
                                     <h3>Owner</h3>

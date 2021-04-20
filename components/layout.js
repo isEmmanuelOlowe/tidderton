@@ -12,6 +12,8 @@ export default function Layout(props) {
   else {
     return (<NavBar heading={props.heading}>
               {props.children}
+              <br/>
+              <br/>
             </NavBar>)
   }
 }

@@ -19,10 +19,20 @@ export default class NavBar extends React.Component {
     this.state = {
       navBar: "",
       username: '',
-      token: ''
+      token: '',
+      search: ''
     }
   }
 
+
+  updateSearch = (e) => {
+    this.setState({search: e.target.value});
+  }
+
+  submitSearch = (e) => {
+    e.preventDefault();
+    Router.push("/search/" + this.state.search);
+  }
 
   handleLogout = (e) => {
     destroyCookie({}, 'username');
@@ -100,8 +110,8 @@ export default class NavBar extends React.Component {
           </button>
           <div className="collapse navbar-collapse" id="navbarSupportedContent">
           {this.state.navItems}
-            <form className="form-inline md-form mt-0">
-              <input autoComplete="off"  id={styles.navSearch} className="mr-sm-2" type="search" placeholder="Search" aria-label="Search"/>
+            <form className="form-inline md-form mt-0" onSubmit={this.submitSearch}>
+              <input autoComplete="off" value={this.state.search} onChange={this.updateSearch} id={styles.navSearch} className="mr-sm-2" type="search" placeholder="Search" aria-label="Search"/>
             </form>
           </div>
         </nav>

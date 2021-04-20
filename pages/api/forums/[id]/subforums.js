@@ -1,4 +1,5 @@
 import axios from 'axios';
+import {getSubforumResponse, getSuitableHeaders} from '../../utils'
 
 // Request for list of subforums of given forum ID.
 export default async (req, res) => {
@@ -7,52 +8,49 @@ export default async (req, res) => {
         query: { id },
     } = req;
 
-    if (req.method === "GET") {
+    let verificationUrl = `${process.env.BACKEND_HOST}/signatures/verify`
+    let authResponse = await axios.get(verificationUrl, {headers: getSuitableHeaders(req)})
+    if (!authResponse.data.verified) {
+        res.status(authResponse.data.statusCode).json({message: authResponse.data.message})
 
-        // Fetch subforum based on ID.
-        let subs = await axios.get(process.env.BACKEND_HOST + "/sub/allSubs");
+    }
+    else if (req.method === "GET") {
 
-        // If sub was found then extract list of all of its posts.
-        if (subs.data) {
+        if (id == process.env.TIDDERTON_ID) {
+            // Fetch subforum based on ID.
+            let subs = await axios.get(process.env.BACKEND_HOST + "/sub/allSubs", {headers: getSuitableHeaders(req)});
 
-            var subforumList = [];
+            // If sub was found then extract list of all of its posts.
+            if (subs.data) {
 
-            var forum;
-            for (forum of subs.data) {
-                // Construct respnse.
-                let cleanForum = {
-            
-                    "id":   forum._id,
-                    "subforumName": forum.title,
-                    "forumId": 1,   // TODO make this env variable for forum ID
+                var subforumList = [];
+
+                var forum;
+                for (forum of subs.data) {
+
+                    // Constructing response.
+                    let cleanForum = getSubforumResponse(forum)
+                    subforumList.push(cleanForum);
+                }
+
+                let responseData = {
+                    "_embedded": {
+                        "subforumList": subforumList
+                    },
                     "_links": {
                         "self": {
-                            "href": process.env.FRONTEND_HOST + "/api/subforums/" + forum._id
-                        }, 
-                        "forum": {
-                            "href": process.env.FRONTEND_HOST + "/api/forums/" + 1
-                        },
-                        "posts": {
-                            "href": process.env.FRONTEND_HOST + "/api/subforums/" + forum._id + "/posts" 
+                            "href": process.env.FRONTEND_HOST + "/api/forums/" +  process.env.TIDDERTON_ID + "/subforums"
                         }
                     }
                 }
-                subforumList.push(cleanForum);
-            }           
-            
-            // Return user with OK respnse code.
-            res.status(200).json({"_embedded": { "subforumList": subforumList}});
-        
+                // Return user with OK respnse code.
+                res.status(200).json(responseData);
+
+            }
         }
         // Case where user not found.
         else {
-            res.status(404).json({msg: "forum not found"});
+            res.status(404).json({message: "Forum Not Found"});
         }
-
-        
-    }
-    else {
-        // Request is not GET, assume for now that no permissions other than GET for external.
-        res.status(403).json({msg: "no permission or error"});
     }
 }

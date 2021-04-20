@@ -1,4 +1,5 @@
 import axios from 'axios';
+import {getSubforumResponse, getSuitableHeaders} from '../../utils'
 
 // Request for individual Sub by ID.
 export default async (req, res) => {
@@ -7,45 +8,31 @@ export default async (req, res) => {
         query: { id },
     } = req;
 
-    if (req.method === "GET") {
+    let verificationUrl = `${process.env.BACKEND_HOST}/signatures/verify`
+    let authResponse = await axios.get(verificationUrl, {headers: getSuitableHeaders(req)})
+    if (!authResponse.data.verified) {
+        res.status(authResponse.data.statusCode).json({message: authResponse.data.message})
+    }
+
+    else if (req.method === "GET") {
 
         // Fetch subforum based on ID.
-        let sub = await axios.get(process.env.BACKEND_HOST + "/sub/" + id);
-                
-        // If sub was found then construct JSON response conforming to protocol.
-        if (sub.data.details) {
-            // Construct respnse.
-            let forum = {
-                
-                "id":   sub.data.details._id,
-                "subforumName": sub.data.details.title,
-                "forumId": 1,   // TODO make this env variable for forum ID
-                "_links": {
-                    "self": {
-                        "href": process.env.FRONTEND_HOST + "/api/subforums/" + id
-                    }, 
-                    "forum": {
-                        "href": process.env.FRONTEND_HOST + "/api/forums/" + 1 
-                    },
-                    "posts": {
-                        "href": process.env.FRONTEND_HOST + "/api/subforums/1/posts" 
-                    }
-                }
-            }
-            
-            // Return user with OK respnse code.
-            res.status(200).json(forum);
+        let sub = await axios.get(process.env.BACKEND_HOST + "/sub/" + id, {headers: getSuitableHeaders(req)});
         
-        }
-        // Case where user not found.
-        else {
-            res.status(404).json({msg: "forum not found"});
+        let statusCode = sub.data.statusCode
+        if (sub.data.statusCode != 200) {
+            res.status(statusCode).json({message: sub.data.message})
         }
 
-        
-    }
-    else {
-        // Request is not GET, assume for now that no permissions other than GET for external.
-        res.status(403).json({msg: "no permission or error"});
+        // If sub was found then construct JSON response conforming to protocol.
+        else if (sub.data.details) {
+            
+            // Construct respnse.
+            let forum = getSubforumResponse(sub.data.details)
+
+            // Return user with OK respnse code.
+            res.status(200).json(forum);
+
+        }
     }
 }

@@ -39,6 +39,16 @@
     background-color: #227093;
 }
 
+.voteActive {
+    border-radius: 5px 0px 0px 5px;
+    background-color: #cc8e35;
+}
+
+.voteInactive {
+    border-radius: 5px 0px 0px 5px;
+    background-color: #227093;
+}
+
 .votes div div {
     padding-bottom: 25px;
 }
@@ -86,7 +96,11 @@
 .vote:hover {
     background-color: #cc8e35;
     border-radius: 5px;
+}
 
+.selected {
+    background-color: #cc8e35;
+    border-radius: 5px;
 }
 
 @media only screen and (max-width: 991px) {
